@@ -1,25 +1,21 @@
-import logo from './logo.svg';
+import {RegisterForm} from "./components/RegisterForm";
+import {LoginPage} from "./components/Login/LoginPage";
+import {Route} from 'react-router-dom';
+import {Navbar} from "./components/NavBar/Navbar";
+
+import {useAuth} from "./hooks/useAuth";
 import './App.css';
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const {user} = useAuth()
+    return (
+        <>
+            <Navbar user={user}/>
+            <Route path='/chat' render={() => <h2>chat</h2>}/>
+            <Route path='/register' render={() => <RegisterForm/>}/>
+            <Route path='/login' render={() => <LoginPage/>}/>
+        </>
+    );
 }
 
 export default App;
