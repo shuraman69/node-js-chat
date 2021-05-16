@@ -5,13 +5,14 @@ import {Navbar} from "./components/NavBar/Navbar";
 
 import {useAuth} from "./hooks/useAuth";
 import './App.css';
+import Chat from "./components/chat/Chat";
 
 function App() {
     const {user} = useAuth()
     return (
         <>
             <Navbar user={user}/>
-            <Route path='/chat' render={() => <h2>chat</h2>}/>
+            <Route path='/chat' render={() => <Chat  user={user}/>}/>
             <Route path='/register' render={() => <RegisterForm/>}/>
             <Route path='/login' render={() => <LoginPage/>}/>
         </>

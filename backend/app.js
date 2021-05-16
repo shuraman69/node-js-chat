@@ -7,8 +7,21 @@ import express from 'express'
 import bcrypt from 'bcrypt'
 import cors from 'cors'
 import {authMiddleware} from "./middleware/auth.middleware.js";
+import Message from "./schemas/message.js";
 
 const app = express()
+const getTime = () => {
+    const Data = new Date()
+    const Hour = Data.getHours().toString();
+    let Minutes = Data.getMinutes().toString();
+    if (Minutes.length === 1 && Minutes === "0") {
+        Minutes = Minutes + '0'
+    }
+    if (Minutes.length === 1 && Minutes !== '0') {
+        Minutes = '0' + Minutes
+    }
+    return Hour + ':' + Minutes
+}
 
 app.use(cors())
 app.use(bodyParser.json())
@@ -26,12 +39,12 @@ app.post('/register', [
     }
 
 
-    const {email, password, firstName, lastName} = req.body
     if (!req.body) {
         res.status(401)
         console.log(req.body)
         return res.send('Ошибка регистрации')
     }
+    const {email, password, firstName, lastName} = req.body
     const candidate = await User.findOne({email})
     if (candidate) {
         return res.status(500).json({message: "Такой пользователь уже существует"})
@@ -108,6 +121,41 @@ app.get('/auth', authMiddleware,
             return res.status(400).json({e, message: 'Ошибка в кетч попала'})
         }
     })
+//========================================================
+
+app.post('/send/', [
+    check('title', 'Ошибка').exists(),
+    check('name', 'Ошибка').exists()
+], async (req, res) => {
+    if (!req.body) {
+        return res.status(500).json('Ошибка отправки сообщения')
+    }
+    try {
+        const {title, name} = req.body
+        console.log(req.body)
+        const newMessage = new Message({
+            title: title,
+            sender: name,
+            time: getTime()
+        })
+        if (newMessage) {
+            await newMessage.save().then(() => {
+                return res.status(200).json('Сообщение успешно отправлено')
+            })
+        }
+    } catch (err) {
+        return res.status(500).send('Ошибка отправки сообщения')
+    }
+})
+app.get('/messages', async (req, res) => {
+    try {
+        const messages = await Message.find().exec()
+        res.status(200)
+        return res.send(messages)
+    } catch (err) {
+        return res.status(500).json('Ошибка')
+    }
+})
 
 
 app.listen(3000, () => {
